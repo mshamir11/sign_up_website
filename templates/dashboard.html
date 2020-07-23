@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block head %}
+
+{% endblock %}
+{% block header %}
+
+
+<p>
+<h1>Dashboard</h1>
+</p>
+{% endblock %}
+
+{% block body %}
+
+
+<h1>Dashboard <small>Welcome, {{session.username}}</small> </h1>
+<a class="btn btn-success" href="/add_articles"> Add Minutes</a>
+{% endblock %}
