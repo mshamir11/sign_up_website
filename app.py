@@ -104,7 +104,7 @@ def login():
             
             else:
                 # app.logger.info('PASSWORD NOT MATCHED')
-                error ='Invalid passord'
+                error ='Invalid password'
                 return render_template('login.html',error=error)
 
         
