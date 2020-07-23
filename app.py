@@ -60,7 +60,7 @@ def addpost():
 
 
 #Registeration route
-@app.route('/register',methods=['GET','POST'])
+@app.route('/register_alphamegazord',methods=['GET','POST'])
 def register():
     form = RegisterForm(request.form)
     if request.method == "POST" and form.validate():
