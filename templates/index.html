@@ -47,10 +47,14 @@
                         <span>{{post.date_posted.strftime("%d %B, %Y")}}</span>
                     </div>
                     <div class="timeline-marker"></div>
-                    <div class="timeline-content js--fadeInRight">
+                    
+                    
+                    <div class="timeline-content js--fadeInRight" >
                         <h3 class="timeline-title">{{post.title}}</h3>
-                        {{post.content}}
-                    </div>
+                        <!-- <a href="#" onclick="toggle_visibility('{{post.id}}');">Minutes</a> -->
+                        <button class="btn btn-primary" onclick="toggle_visibility('{{post.id}}');">Minutes</button>
+                        <div id={{post.id}} style="display: none;">
+                        {{post.content|safe}}
                     {% endif %}
 
                 </li>
