@@ -15,14 +15,17 @@
 <body>
     <header> 
         <div>
+            
         {% include "includes/_navbar.html" %}
     </div>
+   
         {% block header %}
         
         {% endblock %}
         </header>
     
     <div class="container">
+        {% include 'includes/_messages.html' %}
     {% block body %} {% endblock %}
     </div>
     <!-- <script src="//cdn.ckeditor.com/4.14.1/basic/ckeditor.js"></script> -->

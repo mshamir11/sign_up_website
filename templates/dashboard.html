@@ -15,4 +15,22 @@
 
 <h1>Dashboard <small>Welcome, {{session.username}}</small> </h1>
 <a class="btn btn-success" href="/add_articles"> Add Minutes</a>
+<hr>
+<table class="table table-striped">
+    <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Title</th>User
+    </tr>
+    {% for minute in minutes %}
+    <tr> 
+        <td>{{minute.id}}</td>
+        <td>{{minute.date_posted}}</td>
+        <td>{{minute.title}}</td>
+        <td><a href='edit_article/{{minute.id}}' class="btn btn-default pullright">Edit</a></td>
+        <td><a href='#' class="btn btn-danger pullright">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
 {% endblock %}

@@ -4,7 +4,7 @@ from datetime import datetime
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
-
+from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
 
@@ -12,6 +12,19 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///updates.db'
 app.secret_key = 'imsuperman'
 
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id='1005730274054-3kp9tn3bc3shjchcqi6vk4kjgr5e6u62.apps.googleusercontent.com',
+    client_secret='D_0y5xKgQS38IuxCZ3qZbTHH',
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',  # This is only needed if using openId to fetch user info
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 db = SQLAlchemy(app)
 
@@ -78,7 +91,7 @@ def register():
         return redirect(url_for('home'))
     
     return render_template('register.html',form=form)
-
+ 
 
 #user login
 @app.route('/login',methods=['GET','POST'])
@@ -131,7 +144,13 @@ def is_logged_in(f):
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
-    return render_template('dashboard.html')
+
+    minutes = updates.query.all()
+    if minutes:
+        return render_template('dashboard.html',minutes=minutes)
+    else:
+        msg = "No articles found"
+        return render_template('dashboard.html',msg=msg)
 
 
 @app.route('/logout')
@@ -165,6 +184,63 @@ def add_article():
 
         return redirect(url_for('dashboard'))
     return render_template('add_articles.html',form=form)
+
+@app.route('/edit_article/<string:id>',methods=['GET','POST'])
+@is_logged_in
+def edit_article(id):
+
+    #Get article by id
+    result = updates.query.filter_by(id=id).first()
+    #Get the form
+    form = ArticleForm(request.form)
+
+    #Populate article form fields
+
+    form.title.data = result.title
+    form.body.data = result.content
+    
+
+    if request.method =='POST' and form.validate():
+        new_title = form.title.data
+        new_body = form.body.data
+
+        
+        result.title = new_title
+        result.content = new_body
+        db.session.commit()
+
+        flash('Article Updated','success')
+
+        return redirect(url_for('dashboard')) 
+
+    return render_template('edit_article.html',form=form)
+
+
+
+@app.route('/google_login')
+def google_login():
+    google = oauth.create_client('google')
+    redirect_uri = url_for('authorize',_external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+
+@app.route('/authorize')
+def authorize():
+    google = oauth.create_client('google')  # create the google oauth client
+    token = google.authorize_access_token()  # Access token from google (needed  to get user info)
+    resp = google.get('userinfo')  # userinfo contains stuff u specificed in the scrope
+    user_info = resp.json()
+    session['email'] = user_info['email']
+    if user_info['verified_email']:
+        session['logged_in'] = True
+        flash("You are now logged In","success")
+     # uses openid endpoint to fetch user info
+    # Here you use the profile/user data that you got and query your database find/register the user
+    # make the session permanant so it keeps existing after broweser gets closed
+    return redirect('/')
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
